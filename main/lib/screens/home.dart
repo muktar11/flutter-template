@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:main/screens/home_body.dart';
 import 'package:main/screens/home_login.dart';
 import 'package:main/screens/home_publish.dart';
-import 'package:main/screens/profile.dart';
+import 'package:main/screens/home_profile.dart';
 import 'package:main/screens/home_search.dart'; // Import your search page
 import 'package:main/screens/home_notifications.dart'; // Rename to Notification
 import 'package:main/screens/home_mail.dart';
 import 'package:main/screens/home_invest.dart';
-
+import 'package:main/screens/home_settings.dart';
+import 'package:main/screens/home_help.dart';
+import 'package:main/screens/home_messages.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -45,15 +47,15 @@ class _HomePageState extends State<HomePage> {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     fit: BoxFit.fill,
-                    image: AssetImage('assets/images/face1.jpeg'),
+                    image: AssetImage('assets/images/Linkit.jpg'),
                   ),
                 ),
               ),
             ),
           ),
         ),
-        backgroundColor: Theme.of(context).primaryColorDark,
-        title: Text('Home'),
+        // backgroundColor: Theme.of(context).primaryColorDark,
+        title: Text('LinkIt'),
       ),
       body: _pages[_selectedIndex],
       drawer: Drawer(
@@ -144,6 +146,23 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ListTile(
                         title: Text(
+                          'Messages',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        leading: Icon(
+                          Icons.message_outlined,
+                          color: Colors.grey,
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeMessagePage()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        title: Text(
                           'Publish',
                           style: TextStyle(color: Colors.black),
                         ),
@@ -203,12 +222,26 @@ class _HomePageState extends State<HomePage> {
                           'Settings and Privacy',
                           style: TextStyle(color: Colors.black),
                         ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SettingsPrivacyPage()),
+                          );
+                        },
                       ),
                       ListTile(
                         title: Text(
                           'Help center',
                           style: TextStyle(color: Colors.black),
                         ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HelpCenterPage()),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -255,12 +288,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      /*
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.edit),
-      ),
-      */
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -280,14 +307,14 @@ class _HomePageState extends State<HomePage> {
             label: 'Messages',
           ),
         ],
-        backgroundColor: Theme.of(context).primaryColorDark,
+        backgroundColor:
+            Colors.transparent, // Set the background color to transparent
+        elevation: 0, // Remove the shadow
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue, // Color of the selected item
-        unselectedItemColor: Colors.grey, // Color of the unselected items
-        selectedLabelStyle:
-            TextStyle(color: Colors.blue), // Color of the selected label
-        unselectedLabelStyle:
-            TextStyle(color: Colors.grey), // Color of the unselected label
+        // selectedItemColor: Theme.of(context).colorScheme.primary, // Adjust as needed
+        // unselectedItemColor: Theme.of(context).colorScheme.onSurface, // Adjust as needed
+        // selectedLabelStyle: TextStyle(color: Theme.of(context).colorScheme.primary), // Adjust as needed
+        // unselectedLabelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface), // Adjust as needed
         onTap: _onItemTapped,
       ),
     );

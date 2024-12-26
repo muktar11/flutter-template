@@ -38,7 +38,17 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   video_player: ^2.9.1
-  youtube_player_flutter: ^8.0.0
+  youtube_player_flutter: ^9.1.1
+  icons_plus: ^5.0.0
+  image_picker: ^1.1.2
+  http: ^1.2.2
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.0.15 
+  fluttertoast: ^8.0.9
+  web_socket_channel: ^2.2.0
+  socket_io_client: ^2.0.0
+  provider: ^6.1.2
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -73,7 +83,9 @@ flutter:
     - assets/images/face5.jpeg
     - assets/images/image1.jpeg
     - assets/images/image2.jpeg
-
+    - assets/images/bg1.png
+    - assets/images/Linkit.jpg
+    - assets/images/chat-background.jpg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

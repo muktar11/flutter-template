@@ -1,44 +1,143 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:main/screens/home_chat.dart';
 
-class HomeDetailPage extends StatelessWidget {
+class HomeDetailPage extends StatefulWidget {
   final String profileImage;
-  final String name;
-  final String username;
+  final int user_id;
+  final int recipient_id;
+  final String author;
+  final String parent;
+  final String organization;
+  final String submission_type;
+  final String title;
+  final String short_description;
+  final String key_features_and_goals;
+  final String target_audience;
+  final String development_stage;
+  final String amount_needed;
+  final String how_will_funds_will_be_used;
+  final String market_overview;
+  final String competitors;
+  final String potential_user_impact;
+  final String uniqueness;
   final String tweet;
   final String replies;
   final String likes;
   final String? image;
-  final String? video;
+  final String? videoUrl;
 
   HomeDetailPage({
     required this.profileImage,
-    required this.name,
-    required this.username,
+    required this.user_id,
+    required this.recipient_id,
+    required this.author,
+    required this.parent,
+    required this.organization,
+    required this.submission_type,
+    required this.title,
+    required this.short_description,
+    required this.key_features_and_goals,
+    required this.target_audience,
+    required this.development_stage,
+    required this.amount_needed,
+    required this.how_will_funds_will_be_used,
+    required this.market_overview,
+    required this.competitors,
+    required this.potential_user_impact,
+    required this.uniqueness,
     required this.tweet,
     required this.replies,
     required this.likes,
     this.image,
-    this.video,
+    this.videoUrl,
   });
 
   @override
-  Widget build(BuildContext context) {
-    String? selectedOption;
+  _HomeDetailPageState createState() => _HomeDetailPageState();
+}
 
-    final List<String> businessOptions = [
-      'Offer Shares',
-      'Offer Equity',
-      'Revenue Sharing',
-      'Partnership',
-    ];
+class _HomeDetailPageState extends State<HomeDetailPage> {
+  YoutubePlayerController? _youtubeController;
 
-    return Scaffold(
-      backgroundColor: Colors.white, // Change background color to white
-      appBar: AppBar(
-        title: Text(name),
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize the YouTube player only if the video URL is available.
+    if (widget.videoUrl != null && widget.videoUrl!.isNotEmpty) {
+      String? videoId = getYoutubeVideoId(widget.videoUrl!);
+      if (videoId != null) {
+        _youtubeController = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: YoutubePlayerFlags(
+            autoPlay: false,
+            mute: false,
+          ),
+        );
+      } else {
+        print('Invalid video URL or videoId could not be extracted.');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    // Dispose of the controller when done.
+    _youtubeController?.dispose();
+    super.dispose();
+  }
+
+  String? getYoutubeVideoId(String url) {
+    try {
+      Uri uri = Uri.parse(url);
+      if (uri.host.contains("youtube.com")) {
+        return uri.queryParameters['v'];
+      } else if (uri.host.contains("youtu.be")) {
+        return uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
+      }
+      return null;
+    } catch (e) {
+      print('Error extracting video ID: $e');
+      return null;
+    }
+  }
+
+  Widget buildInfoSection(String label, String content) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            content,
+            style: const TextStyle(color: Colors.black54),
+          ),
+        ],
       ),
-      body: Padding(
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text('Tweet Details'),
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,94 +145,101 @@ class HomeDetailPage extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage(profileImage),
+                  backgroundImage: AssetImage(widget.profileImage),
                   radius: 30.0,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
-                      style: TextStyle(
+                      widget.author,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.0,
+                        color: Colors.black,
                       ),
                     ),
                     Text(
-                      username,
-                      style: TextStyle(color: Colors.grey),
+                      widget.parent,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
-              tweet,
-              style: TextStyle(fontSize: 16.0),
+              widget.tweet,
+              style: const TextStyle(fontSize: 16.0, color: Colors.black),
             ),
-            if (image != null)
+            // Render both image and video if available
+            if (widget.image != null && widget.image!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxHeight: 200.0, // Set the max height for the image
-                    ),
-                    child: Image.asset(
-                      image!,
-                      fit: BoxFit.cover, // Ensures the image covers the container
-                    ),
+                  child: Image.network(
+                    widget.image!,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-            if (video != null) // Check if a video exists
+            if (widget.videoUrl != null &&
+                widget.videoUrl!.isNotEmpty &&
+                _youtubeController != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Container(
-                  width: double.infinity,
-                  height: 200.0,
-                  child: YoutubePlayerWidget(video!), // Render the video using YoutubePlayerWidget
+                child: YoutubePlayer(
+                  controller: _youtubeController!,
+                  showVideoProgressIndicator: true,
                 ),
               ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Comments: $replies'),
-                Text('Rating: $likes'),
-              ],
+            const SizedBox(height: 20),
+            buildInfoSection('Organization', widget.organization),
+            buildInfoSection('Submission Type', widget.submission_type),
+            buildInfoSection('Title', widget.title),
+            buildInfoSection('Short Description', widget.short_description),
+            buildInfoSection('Target Audience', widget.target_audience),
+            buildInfoSection(
+                'Key Features and Goals', widget.key_features_and_goals),
+            buildInfoSection(
+                'Potential User Impact', widget.potential_user_impact),
+            buildInfoSection('Development Stage', widget.development_stage),
+            buildInfoSection('Amount Needed', widget.amount_needed),
+            buildInfoSection('Fund Usage', widget.how_will_funds_will_be_used),
+            buildInfoSection('Market Overview', widget.market_overview),
+            buildInfoSection('Competitors', widget.competitors),
+            buildInfoSection('Uniqueness', widget.uniqueness),
+            const SizedBox(height: 10),
+            Text(
+              'Replies: ${widget.replies}  •  Likes: ${widget.likes}',
+              style: const TextStyle(color: Colors.grey),
             ),
-            SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                // Add chat functionality here
-              },
-              child: Text('Chat'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // Button background color
-                foregroundColor: Colors.grey, // Text color
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black, // Dark color
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChatPage(
+                              chatName: 'LinkIt',
+                              sid: widget.user_id,
+                              rid: widget.recipient_id,
+                            )),
+                  );
+                },
+                child: Text(
+                  'Chat',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            DropdownButton<String>(
-              value: selectedOption,
-              hint: Text('Select Offer Type'),
-              items: businessOptions.map((String option) {
-                return DropdownMenuItem<String>(
-                  value: option,
-                  child: Text(option),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                // Handle the selection
-                selectedOption = newValue;
-                print('Selected: $selectedOption');
-              },
-              style: TextStyle(color: Colors.grey),
-              dropdownColor: Colors.white, // Background color of the dropdown menu
             ),
           ],
         ),
@@ -141,43 +247,3 @@ class HomeDetailPage extends StatelessWidget {
     );
   }
 }
-
-class YoutubePlayerWidget extends StatefulWidget {
-  final String videoUrl;
-  YoutubePlayerWidget(this.videoUrl);
-
-  @override
-  _YoutubePlayerWidgetState createState() => _YoutubePlayerWidgetState();
-}
-
-class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
-  late YoutubePlayerController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(widget.videoUrl)!,
-      flags: YoutubePlayerFlags(
-        autoPlay: false,
-        mute: false,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return YoutubePlayer(
-      controller: _controller,
-      showVideoProgressIndicator: true,
-      progressIndicatorColor: Colors.blueAccent,
-    );
-  }
-}
-

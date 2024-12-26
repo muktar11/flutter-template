@@ -1,212 +1,258 @@
 import 'package:flutter/material.dart';
-import 'package:main/screens/home.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // For JSON encoding and decoding
 import 'package:main/screens/home_login.dart';
+import 'package:main/theme/theme.dart';
+import 'package:main/widgets/custom_scaffold.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final _formSignupKey = GlobalKey<FormState>();
+  bool agreePersonalData = true;
+
+  // TextEditingControllers to capture input values
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _password2Controller = TextEditingController();
+
+  // Method to handle API request
+  Future<void> _register() async {
+    if (_formSignupKey.currentState!.validate() && agreePersonalData) {
+      try {
+        // Preparing the API request payload
+        final response = await http.post(
+          Uri.parse('http://192.168.1.16:8000/api/register/'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'username': _usernameController.text,
+            'phone': _phoneController.text,
+            'email': _emailController.text,
+            'password': _passwordController.text,
+            'password2': _password2Controller.text,
+          }),
+        );
+
+        // Handling the response
+        if (response.statusCode == 201) {
+          // Successfully registered, show a success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registration successful!')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        } else {
+          // Handle any error responses
+          final responseBody = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${responseBody['detail']}')),
+          );
+        }
+      } catch (e) {
+        // Handle exceptions
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to register: $e')),
+        );
+      }
+    } else if (!agreePersonalData) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please agree to the processing of personal data'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // Set the background color to white
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // Instagram logo or any other logo
-            Center(
-              child: Container(
-                margin: EdgeInsets.only(top: 80), // Top margin
-                child: Center(
-                  child: Text(
-                    'LinkIT',
-                    style: TextStyle(
-                      fontFamily: 'Billabong', // Instagram's logo font
-                      fontSize: 50,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
+    return CustomScaffold(
+      child: Column(
+        children: [
+          const Expanded(
+            flex: 1,
+            child: SizedBox(
+              height: 10,
             ),
-            SizedBox(height: 40),
-            // Username TextField
-
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'first name',
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
+          ),
+          Expanded(
+            flex: 7,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(40.0),
+                  topRight: Radius.circular(40.0),
                 ),
               ),
-              style: TextStyle(
-                color: Colors.grey, // Set the text color to grey
-                fontSize: 12,
-              ),
-            ),
-
-            SizedBox(height: 10),
-
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'last name',
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: TextStyle(
-                color: Colors.grey, // Set the text color to grey
-                fontSize: 12,
-              ),
-            ),
-
-            SizedBox(height: 10),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'email',
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: TextStyle(
-                color: Colors.grey, // Set the text color to grey
-                fontSize: 12,
-              ),
-            ),
-
-            SizedBox(height: 10),
-
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'phone number',
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: TextStyle(
-                color: Colors.grey, // Set the text color to grey
-                fontSize: 12,
-              ),
-            ),
-
-            SizedBox(height: 10),
-            // Password TextField
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'password',
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: TextStyle(
-                color: Colors.grey, // Set the text color to grey
-                fontSize: 12,
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-
-            // Password TextField
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'confirm password',
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: TextStyle(
-                color: Colors.grey, // Set the text color to grey
-                fontSize: 12,
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            // Login Button
-            ElevatedButton(
-              onPressed: () {
-                // Perform login logic here
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
-              },
-              child: Text(
-                'Register',
-                style: TextStyle(
-                  color: Colors.black, // Set the text color to grey
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff1CA1F1), // Instagram-like blue
-                padding: EdgeInsets.symmetric(vertical: 14.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            // Forgot Password link
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  // Navigate to RegisterPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-                child: Text(
-                  'Forgot password?',
-                  style: TextStyle(
-                    color: Color(0xff1CA1F1),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            Spacer(),
-            // Sign Up link at the bottom
-            Divider(color: Colors.grey),
-            Center(
-              child: GestureDetector(
-             
-                  onTap: () {
-                  // Navigate to RegisterPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-                  // Navigate to Sign Up page
-                
-                child: RichText(
-                  text: TextSpan(
-                    text: "Do you have an account? ",
-                    style: TextStyle(color: Colors.black),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formSignupKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      TextSpan(
-                        text: 'Sign in.',
+                      Text(
+                        'Get Started',
                         style: TextStyle(
-                          color: Color(0xff1CA1F1),
-                          fontWeight: FontWeight.bold,
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.w900,
+                          color: lightColorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 40.0),
+                      // Full Name
+                      TextFormField(
+                        controller: _usernameController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Full name';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Full Name'),
+                          hintText: 'Enter Full Name',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25.0),
+                      // Phone
+                      TextFormField(
+                        controller: _phoneController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Phone';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Phone'),
+                          hintText: 'Enter Phone',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25.0),
+                      // Email
+                      TextFormField(
+                        controller: _emailController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Email';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Email'),
+                          hintText: 'Enter Email',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25.0),
+                      // Password
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Password';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Password'),
+                          hintText: 'Enter Password',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25.0),
+                      // Confirm Password
+                      TextFormField(
+                        controller: _password2Controller,
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Confirm Password';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Confirm Password'),
+                          hintText: 'Enter Confirm Password',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25.0),
+                      // Agree to Personal Data Checkbox
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: agreePersonalData,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                agreePersonalData = value!;
+                              });
+                            },
+                            activeColor: lightColorScheme.primary,
+                          ),
+                          const Text(
+                            'I agree to the processing of Personal data',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 25.0),
+                      // Sign Up Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _register, // Call the register function
+                          child: const Text('Sign up'),
                         ),
                       ),
                     ],
@@ -214,9 +260,8 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 50),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

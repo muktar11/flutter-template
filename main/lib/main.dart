@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-
 import 'package:main/screens/home_login.dart';
+import 'package:main/screens/home_settings.dart';
+import 'package:provider/provider.dart';
+import './theme/theme_provider.dart';
 
-void main() => runApp(MyApp());
+
+void main() => runApp(
+   ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child:  MyApp(),
+    ),
+  );
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Twitter Clone',
-      theme: ThemeData(
-          primaryColor: Colors.white,
-          primaryColorDark: Colors.white,
-          //accentColor: Color(0xff1CA1F1),
-          colorScheme:
-              ColorScheme.fromSwatch().copyWith(secondary: Colors.white),
-          iconTheme: IconThemeData(color: Colors.white)),
-      //   home: HomePage(),\
+      title: 'LinkIt',
+      theme: themeProvider.currentTheme,
       home: LoginPage(),
     );
   }
